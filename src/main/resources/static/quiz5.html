@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz 5: IT Policies & Compliance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        const totalQuestions = 10;
+        const correctAnswerIndices = [1,1,1,1,1,1,1,1,1,1]; // correct options for each question
+
+        function updateProgressBar() {
+            let correctAnswers = 0;
+            for (let i = 1; i <= totalQuestions; i++) {
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedOption && parseInt(selectedOption.value) === correctAnswerIndices[i-1]) {
+                    correctAnswers++;
+                }
+            }
+            const progressPercentage = (correctAnswers / totalQuestions) * 100;
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progressPercentage + '%';
+            progressBar.setAttribute('aria-valuenow', progressPercentage);
+            progressBar.textContent = Math.round(progressPercentage) + '%';
+
+            if (progressPercentage === 100) {
+                progressBar.classList.add('bg-success');
+            } else {
+                progressBar.classList.remove('bg-success');
+            }
+        }
+
+        function submitQuiz() {
+            let correctAnswers = 0;
+            for (let i = 1; i <= totalQuestions; i++) {
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedOption && parseInt(selectedOption.value) === correctAnswerIndices[i-1]) {
+                    correctAnswers++;
+                }
+            }
+
+            if (correctAnswers < totalQuestions) {
+                alert("You must answer all questions correctly before submitting!");
+                return;
+            }
+
+            localStorage.setItem('quiz5Progress', 100);
+
+            const progress = {
+                student: { id: 1 }, // replace with actual student ID
+                quiz: { id: 5 },    // Quiz 5 ID
+                totalQuestions,
+                correctAnswers,
+                completed: true
+            };
+
+            fetch('/api/quiz-progress/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(progress)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`Quiz submitted successfully! Your score: ${correctAnswers}/${totalQuestions}`);
+                    window.location.href = 'quiz.html';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while submitting the quiz.");
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', updateProgressBar);
+            });
+            updateProgressBar();
+        });
+    </script>
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2>Quiz 5: IT Policies & Compliance</h2>
+
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" id="progressBar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+    </div>
+
+    <form id="quizForm">
+        <!-- Questions -->
+        <div class="mb-3">
+            <h6>1. What is an IT policy?</h6>
+            <div><input type="radio" id="q1a1" name="q1" value="1"><label for="q1a1">A set of rules guiding IT usage and security</label></div>
+            <div><input type="radio" id="q1a2" name="q1" value="2"><label for="q1a2">A software installation guide</label></div>
+            <div><input type="radio" id="q1a3" name="q1" value="3"><label for="q1a3">A programming standard</label></div>
+            <div><input type="radio" id="q1a4" name="q1" value="4"><label for="q1a4">A password storage method</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>2. What is GDPR?</h6>
+            <div><input type="radio" id="q2a1" name="q2" value="1"><label for="q2a1">A European data protection regulation</label></div>
+            <div><input type="radio" id="q2a2" name="q2" value="2"><label for="q2a2">A cloud storage service</label></div>
+            <div><input type="radio" id="q2a3" name="q2" value="3"><label for="q2a3">A type of firewall</label></div>
+            <div><input type="radio" id="q2a4" name="q2" value="4"><label for="q2a4">A network protocol</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>3. What is the main goal of compliance?</h6>
+            <div><input type="radio" id="q3a1" name="q3" value="1"><label for="q3a1">Ensure policies and regulations are followed</label></div>
+            <div><input type="radio" id="q3a2" name="q3" value="2"><label for="q3a2">Install antivirus software</label></div>
+            <div><input type="radio" id="q3a3" name="q3" value="3"><label for="q3a3">Encrypt data locally only</label></div>
+            <div><input type="radio" id="q3a4" name="q3" value="4"><label for="q3a4">Disable firewalls</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>4. Which is an example of a compliance standard?</h6>
+            <div><input type="radio" id="q4a1" name="q4" value="1"><label for="q4a1">ISO 27001</label></div>
+            <div><input type="radio" id="q4a2" name="q4" value="2"><label for="q4a2">HTML5</label></div>
+            <div><input type="radio" id="q4a3" name="q4" value="3"><label for="q4a3">TCP/IP</label></div>
+            <div><input type="radio" id="q4a4" name="q4" value="4"><label for="q4a4">Bootstrap</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>5. What is acceptable use policy (AUP)?</h6>
+            <div><input type="radio" id="q5a1" name="q5" value="1"><label for="q5a1">Rules for appropriate IT resource usage</label></div>
+            <div><input type="radio" id="q5a2" name="q5" value="2"><label for="q5a2">A type of firewall</label></div>
+            <div><input type="radio" id="q5a3" name="q5" value="3"><label for="q5a3">Data encryption method</label></div>
+            <div><input type="radio" id="q5a4" name="q5" value="4"><label for="q5a4">Cloud storage service</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>6. Why are IT audits performed?</h6>
+            <div><input type="radio" id="q6a1" name="q6" value="1"><label for="q6a1">To ensure policies and controls are effective</label></div>
+            <div><input type="radio" id="q6a2" name="q6" value="2"><label for="q6a2">To delete old files</label></div>
+            <div><input type="radio" id="q6a3" name="q6" value="3"><label for="q6a3">To install software</label></div>
+            <div><input type="radio" id="q6a4" name="q6" value="4"><label for="q6a4">To reset passwords</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>7. What does HIPAA regulate?</h6>
+            <div><input type="radio" id="q7a1" name="q7" value="1"><label for="q7a1">Healthcare data privacy and security</label></div>
+            <div><input type="radio" id="q7a2" name="q7" value="2"><label for="q7a2">Financial transactions</label></div>
+            <div><input type="radio" id="q7a3" name="q7" value="3"><label for="q7a3">Email marketing</label></div>
+            <div><input type="radio" id="q7a4" name="q7" value="4"><label for="q7a4">Cloud storage costs</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>8. What is role-based access control (RBAC)?</h6>
+            <div><input type="radio" id="q8a1" name="q8" value="1"><label for="q8a1">Granting system access based on user roles</label></div>
+            <div><input type="radio" id="q8a2" name="q8" value="2"><label for="q8a2">Random password generation</label></div>
+            <div><input type="radio" id="q8a3" name="q8" value="3"><label for="q8a3">Installing antivirus</label></div>
+            <div><input type="radio" id="q8a4" name="q8" value="4"><label for="q8a4">Cloud backup frequency</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>9. Why is documentation important in IT policies?</h6>
+            <div><input type="radio" id="q9a1" name="q9" value="1"><label for="q9a1">It ensures procedures are clear and auditable</label></div>
+            <div><input type="radio" id="q9a2" name="q9" value="2"><label for="q9a2">To confuse users</label></div>
+            <div><input type="radio" id="q9a3" name="q9" value="3"><label for="q9a3">To store personal emails</label></div>
+            <div><input type="radio" id="q9a4" name="q9" value="4"><label for="q9a4">To reduce storage space</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>10. Which is a best practice for IT compliance?</h6>
+            <div><input type="radio" id="q10a1" name="q10" value="1"><label for="q10a1">Regular policy review, training, and audits</label></div>
+            <div><input type="radio" id="q10a2" name="q10" value="2"><label for="q10a2">Ignoring regulations</label></div>
+            <div><input type="radio" id="q10a3" name="q10" value="3"><label for="q10a3">Sharing passwords publicly</label></div>
+            <div><input type="radio" id="q10a4" name="q10" value="4"><label for="q10a4">Disabling logs</label></div>
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="submitQuiz()">Submit</button>
+    </form>
+
+    <div class="mt-3">
+        <button class="btn btn-secondary" onclick="window.location.href='quiz.html'">Return to Quiz Selection</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

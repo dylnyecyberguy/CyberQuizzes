@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz 3: Cyber Threats & Malware</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        const totalQuestions = 10;
+        const correctAnswerIndices = [1,1,1,1,1,1,1,1,1,1]; // correct options for each question
+
+        function updateProgressBar() {
+            let correctAnswers = 0;
+            for (let i = 1; i <= totalQuestions; i++) {
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedOption && parseInt(selectedOption.value) === correctAnswerIndices[i-1]) {
+                    correctAnswers++;
+                }
+            }
+            const progressPercentage = (correctAnswers / totalQuestions) * 100;
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progressPercentage + '%';
+            progressBar.setAttribute('aria-valuenow', progressPercentage);
+            progressBar.textContent = Math.round(progressPercentage) + '%';
+
+            if (progressPercentage === 100) {
+                progressBar.classList.add('bg-success');
+            } else {
+                progressBar.classList.remove('bg-success');
+            }
+        }
+
+        function submitQuiz() {
+            let correctAnswers = 0;
+            for (let i = 1; i <= totalQuestions; i++) {
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedOption && parseInt(selectedOption.value) === correctAnswerIndices[i-1]) {
+                    correctAnswers++;
+                }
+            }
+
+            if (correctAnswers < totalQuestions) {
+                alert("You must answer all questions correctly before submitting!");
+                return;
+            }
+
+            localStorage.setItem('quiz3Progress', 100);
+
+            const progress = {
+                student: { id: 1 }, // replace with real student ID
+                quiz: { id: 3 },    // Quiz 3 ID
+                totalQuestions,
+                correctAnswers,
+                completed: true
+            };
+
+            fetch('/api/quiz-progress/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(progress)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`Quiz submitted successfully! Your score: ${correctAnswers}/${totalQuestions}`);
+                    window.location.href = 'quiz.html';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while submitting the quiz.");
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', updateProgressBar);
+            });
+            updateProgressBar();
+        });
+    </script>
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2>Quiz 3: Cyber Threats & Malware</h2>
+
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" id="progressBar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+    </div>
+
+    <form id="quizForm">
+        <!-- Questions -->
+        <div class="mb-3">
+            <h6>1. What is ransomware?</h6>
+            <div><input type="radio" id="q1a1" name="q1" value="1"><label for="q1a1">Malware that locks files and demands payment</label></div>
+            <div><input type="radio" id="q1a2" name="q1" value="2"><label for="q1a2">A firewall feature</label></div>
+            <div><input type="radio" id="q1a3" name="q1" value="3"><label for="q1a3">An encryption protocol</label></div>
+            <div><input type="radio" id="q1a4" name="q1" value="4"><label for="q1a4">Network monitoring software</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>2. Which of these is a phishing attack?</h6>
+            <div><input type="radio" id="q2a1" name="q2" value="1"><label for="q2a1">A fake email requesting login details</label></div>
+            <div><input type="radio" id="q2a2" name="q2" value="2"><label for="q2a2">A virus that spreads through USB drives</label></div>
+            <div><input type="radio" id="q2a3" name="q2" value="3"><label for="q2a3">Installing an OS update</label></div>
+            <div><input type="radio" id="q2a4" name="q2" value="4"><label for="q2a4">Running antivirus software</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>3. What does a Trojan horse do?</h6>
+            <div><input type="radio" id="q3a1" name="q3" value="1"><label for="q3a1">Disguises as legitimate software to harm your system</label></div>
+            <div><input type="radio" id="q3a2" name="q3" value="2"><label for="q3a2">Prevents malware</label></div>
+            <div><input type="radio" id="q3a3" name="q3" value="3"><label for="q3a3">Encrypts network traffic</label></div>
+            <div><input type="radio" id="q3a4" name="q3" value="4"><label for="q3a4">Monitors user activity legally</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>4. What is spyware?</h6>
+            <div><input type="radio" id="q4a1" name="q4" value="1"><label for="q4a1">Software that secretly monitors your activities</label></div>
+            <div><input type="radio" id="q4a2" name="q4" value="2"><label for="q4a2">A type of antivirus</label></div>
+            <div><input type="radio" id="q4a3" name="q4" value="3"><label for="q4a3">A network firewall</label></div>
+            <div><input type="radio" id="q4a4" name="q4" value="4"><label for="q4a4">A secure VPN</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>5. What is a worm?</h6>
+            <div><input type="radio" id="q5a1" name="q5" value="1"><label for="q5a1">Self-replicating malware that spreads across networks</label></div>
+            <div><input type="radio" id="q5a2" name="q5" value="2"><label for="q5a2">A firewall rule</label></div>
+            <div><input type="radio" id="q5a3" name="q5" value="3"><label for="q5a3">Email encryption software</label></div>
+            <div><input type="radio" id="q5a4" name="q5" value="4"><label for="q5a4">Network scanning tool</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>6. Which of the following is NOT a malware type?</h6>
+            <div><input type="radio" id="q6a1" name="q6" value="1"><label for="q6a1">Phishing email</label></div>
+            <div><input type="radio" id="q6a2" name="q6" value="2"><label for="q6a2">Trojan</label></div>
+            <div><input type="radio" id="q6a3" name="q6" value="3"><label for="q6a3">Worm</label></div>
+            <div><input type="radio" id="q6a4" name="q6" value="4"><label for="q6a4">Ransomware</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>7. What is adware?</h6>
+            <div><input type="radio" id="q7a1" name="q7" value="1"><label for="q7a1">Software that displays unwanted advertisements</label></div>
+            <div><input type="radio" id="q7a2" name="q7" value="2"><label for="q7a2">A security patch</label></div>
+            <div><input type="radio" id="q7a3" name="q7" value="3"><label for="q7a3">Network encryption</label></div>
+            <div><input type="radio" id="q7a4" name="q7" value="4"><label for="q7a4">Firewall rule</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>8. How can malware commonly enter a system?</h6>
+            <div><input type="radio" id="q8a1" name="q8" value="1"><label for="q8a1">Through email attachments or downloads</label></div>
+            <div><input type="radio" id="q8a2" name="q8" value="2"><label for="q8a2">Through VPN encryption</label></div>
+            <div><input type="radio" id="q8a3" name="q8" value="3"><label for="q8a3">By using a firewall</label></div>
+            <div><input type="radio" id="q8a4" name="q8" value="4"><label for="q8a4">Through strong passwords</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>9. What is a keylogger?</h6>
+            <div><input type="radio" id="q9a1" name="q9" value="1"><label for="q9a1">Software that records keystrokes secretly</label></div>
+            <div><input type="radio" id="q9a2" name="q9" value="2"><label for="q9a2">A firewall setting</label></div>
+            <div><input type="radio" id="q9a3" name="q9" value="3"><label for="q9a3">A VPN protocol</label></div>
+            <div><input type="radio" id="q9a4" name="q9" value="4"><label for="q9a4">A malware scanner</label></div>
+        </div>
+
+        <div class="mb-3">
+            <h6>10. What is social engineering in cyber attacks?</h6>
+            <div><input type="radio" id="q10a1" name="q10" value="1"><label for="q10a1">Manipulating people to give sensitive info</label></div>
+            <div><input type="radio" id="q10a2" name="q10" value="2"><label for="q10a2">Writing malware code</label></div>
+            <div><input type="radio" id="q10a3" name="q10" value="3"><label for="q10a3">Setting up firewalls</label></div>
+            <div><input type="radio" id="q10a4" name="q10" value="4"><label for="q10a4">Encrypting files</label></div>
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="submitQuiz()">Submit</button>
+    </form>
+
+    <div class="mt-3">
+        <button class="btn btn-secondary" onclick="window.location.href='quiz.html'">Return to Quiz Selection</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -15,16 +15,26 @@
                     </div>
                     <div class="card-body">
                         <form id="registerForm">
+
+                            <!-- Username Field Added -->
+                            <div class="mb-3">
+                                <label for="regUsername" class="form-label">Username</label>
+                                <input type="text" id="regUsername" class="form-control" required>
+                            </div>
+
                             <div class="mb-3">
                                 <label for="regEmail" class="form-label">Email address</label>
                                 <input type="email" id="regEmail" class="form-control" required>
                             </div>
+
                             <div class="mb-3">
                                 <label for="regPassword" class="form-label">Password</label>
                                 <input type="password" id="regPassword" class="form-control" required>
                             </div>
+
                             <button type="submit" class="btn btn-success w-100">Register</button>
                         </form>
+
                         <p class="text-center mt-3">Already have an account?</p>
                         <a href="login.html" class="btn btn-outline-primary w-100">Login</a>
                     </div>
@@ -32,6 +42,7 @@
             </div>
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
     $(document).ready(function() {
@@ -42,6 +53,7 @@
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({
+                    username: $("#regUsername").val(),  // Added
                     email: $("#regEmail").val(),
                     password: $("#regPassword").val()
                 }),
@@ -50,7 +62,7 @@
                     window.location.href = "login.html";
                 },
                 error: function() {
-                    alert("Registration failed. Email may already be in use.");
+                    alert("Registration failed. Email or username may already be in use.");
                 }
             });
         });

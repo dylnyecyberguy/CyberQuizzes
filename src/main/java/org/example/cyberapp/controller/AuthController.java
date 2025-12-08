@@ -16,11 +16,10 @@ public class AuthController {
     @Autowired
     private StudentRepository studentRepository;
 
-
-
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody Student student) {
-        if (studentRepository.findByEmail(student.getEmail()).isPresent()) {
+        Optional<Student> existing = studentRepository.findByEmail(student.getEmail()); // use instance
+        if (existing.isPresent()) {
             return ResponseEntity.badRequest().body("Email already registered");
         }
         studentRepository.save(student);
@@ -29,7 +28,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Student loginRequest) {
-        Optional<Student> studentOpt = studentRepository.findByEmail(loginRequest.getEmail());
+        Optional<Student> studentOpt = studentRepository.findByEmail(loginRequest.getEmail()); // use instance
         if (studentOpt.isPresent() && studentOpt.get().getPassword().equals(loginRequest.getPassword())) {
             return ResponseEntity.ok("Login successful");
         }
