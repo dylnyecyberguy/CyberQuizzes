@@ -5,6 +5,7 @@ import org.example.cyberapp.model.QuizProgress;
 import org.example.cyberapp.model.Student;
 import org.example.cyberapp.repository.QuizProgressRepository;
 import org.example.cyberapp.repository.QuizRepository;
+import org.example.cyberapp.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,48 +20,51 @@ public class QuizService {
     @Autowired
     private QuizRepository quizRepository;
 
-    // Get all progress for a student
+    @Autowired
+    private StudentRepository studentRepository;
+
     public List<QuizProgress> getProgressByStudent(Long studentId) {
         return quizProgressRepository.findByStudent_Id(studentId);
     }
 
-    // Get progress for a specific student and quiz
     public QuizProgress getProgressByStudentAndQuiz(Long studentId, Long quizId) {
         return quizProgressRepository.findByStudent_IdAndQuiz_Id(studentId, quizId);
     }
 
-    // Save or update progress
     public QuizProgress saveProgress(QuizProgress progress) {
         return quizProgressRepository.save(progress);
     }
 
-    // Delete progress
     public void deleteProgress(Long id) {
         quizProgressRepository.deleteById(id);
     }
 
-    // Load quiz by ID
     public Quiz getQuizById(Long quizId) {
         return quizRepository.findById(quizId)
-                .orElseThrow(() -> new RuntimeException("Quiz not found with id: " + quizId));
+                .orElseThrow(() -> new RuntimeException("Quiz not found: " + quizId));
     }
 
-    // Submit a quiz for a student
     public QuizProgress submitQuiz(Long studentId, Long quizId, int correctAnswers) {
-        QuizProgress progress = new QuizProgress();
 
-        // Link student and quiz
-        progress.setStudent(new Student());
-        progress.getStudent().setId(studentId);
+        // Load student and quiz
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
 
-        progress.setQuiz(new Quiz());
-        progress.getQuiz().setId(quizId);
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new RuntimeException("Quiz not found: " + quizId));
 
-        // Track results
-        progress.setTotalQuestions(getQuizById(quizId).getTotalQuestions());
+        // Load existing progress or create new
+        QuizProgress progress = quizProgressRepository.findByStudent_IdAndQuiz_Id(studentId, quizId);
+
+        if (progress == null) {
+            progress = new QuizProgress();
+            progress.setStudent(student);
+            progress.setQuiz(quiz);
+            progress.setTotalQuestions(quiz.getTotalQuestions());
+        }
+
         progress.setCorrectAnswers(correctAnswers);
         progress.setCompleted(true);
 
         return quizProgressRepository.save(progress);
-    }
-}
+    }}
