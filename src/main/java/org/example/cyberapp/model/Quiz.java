@@ -17,14 +17,19 @@ public class Quiz {
     // Optional: a short description
     private String description;
 
-    // Constructors
-    public Quiz() {} // default no-args constructor is required by JPA
+    // Optional: store the correct answer indices as a JSON string or serialized array
+    @Column(length = 1024)
+    private String correctAnswerIndices;
 
-    public Quiz(String title, String category, int totalQuestions, String description) {
+    // Constructors
+    public Quiz() {} // default no-args constructor
+
+    public Quiz(String title, String category, int totalQuestions, String description, String correctAnswerIndices) {
         this.title = title;
         this.category = category;
         this.totalQuestions = totalQuestions;
         this.description = description;
+        this.correctAnswerIndices = correctAnswerIndices;
     }
 
     // Getters and setters
@@ -61,5 +66,12 @@ public class Quiz {
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCorrectAnswerIndices() {
+        return correctAnswerIndices;
+    }
+    public void setCorrectAnswerIndices(String correctAnswerIndices) {
+        this.correctAnswerIndices = correctAnswerIndices;
     }
 }

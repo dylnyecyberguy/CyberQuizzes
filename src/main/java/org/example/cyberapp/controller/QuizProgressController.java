@@ -44,6 +44,17 @@ public class QuizProgressController {
         return ResponseEntity.ok(saved);
     }
 
+    @PostMapping("/complete")
+    public ResponseEntity<QuizProgress> completeQuiz(@RequestBody QuizProgress progress) {
+        QuizProgress saved = quizService.submitQuiz(
+                progress.getStudent().getId(),
+                progress.getQuiz().getId(),
+                progress.getCorrectAnswers()
+        );
+        return ResponseEntity.ok(saved);
+    }
+
+
     // Optional: Delete quiz progress
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProgress(@PathVariable Long id) {
