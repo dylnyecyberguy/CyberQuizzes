@@ -55,7 +55,7 @@ public class QuizProgressController {
     }
 
 
-    // Optional: Delete quiz progress
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProgress(@PathVariable Long id) {
         quizService.deleteProgress(id);

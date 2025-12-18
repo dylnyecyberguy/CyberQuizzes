@@ -14,10 +14,10 @@ public class Quiz {
     private String category;
     private int totalQuestions;
 
-    // Optional: a short description
+
     private String description;
 
-    // Optional: store the correct answer indices as a JSON string or serialized array
+    //  stores the correct answer indices
     @Column(length = 1024)
     private String correctAnswerIndices;
 

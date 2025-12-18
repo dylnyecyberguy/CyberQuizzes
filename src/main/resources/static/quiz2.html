@@ -1,28 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz 2: Network Security - CyberQuizzes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+        }
+
+        .quiz-header {
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .quiz-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .quiz-card .card-header {
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .question-number {
+            background: #fff;
+            color: #11998e;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .form-check {
+            padding: 12px 15px 12px 45px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .form-check:hover {
+            background-color: #f0fff4;
+            border-color: #11998e;
+        }
+
+        .form-check-input:checked + .form-check-label {
+            color: #11998e;
+            font-weight: 600;
+        }
+
+        .form-check:has(.form-check-input:checked) {
+            background-color: #d4edda;
+            border-color: #11998e;
+        }
+
+        .form-check-input {
+            margin-left: -30px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .form-check-input:checked {
+            background-color: #11998e;
+            border-color: #11998e;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-back {
+            border-radius: 25px;
+            padding: 12px 30px;
+        }
+
+        .timer-badge {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            border-radius: 25px;
+        }
+
+        .answered-indicator {
+            display: none;
+            color: #fff;
+            margin-left: 10px;
+        }
+
+        .quiz-card.answered .answered-indicator {
+            display: inline;
+        }
+
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        .stats-card h3 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .stats-card p {
+            margin: 0;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="quiz-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1"><i class="bi bi-hdd-network me-2"></i>Quiz 2: Network Security</h2>
+                <p class="mb-0 opacity-75">Test your knowledge on firewalls, VPNs, and network protocols</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span id="welcomeMsg" class="d-none d-md-inline"></span>
+                <span class="timer-badge bg-light text-dark">
+                    <i class="bi bi-clock me-1"></i>
+                    <span id="timer">10:00</span>
+                </span>
+                <button id="logoutBtn" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <!-- Progress Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="progress-container">
+                <div class="d-flex justify-content-between text-white mb-2">
+                    <span><i class="bi bi-list-check me-1"></i> Progress</span>
+                    <span><span id="answeredCount">0</span> / 10 Questions Answered</span>
+                </div>
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="stats-card">
+                        <h3 id="timeRemaining">10:00</h3>
+                        <p><i class="bi bi-hourglass-split"></i> Time Left</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stats-card">
+                        <h3>10</h3>
+                        <p><i class="bi bi-question-circle"></i> Questions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Form -->
+    <form id="quizForm">
+
+        <!-- Question 1 -->
+        <div class="card quiz-card" data-question="1">
+            <div class="card-header">
+                <span class="question-number">1</span>
+                What is the primary purpose of a firewall?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q1" id="q1a1" value="1">
+                    <label class="form-check-label" for="q1a1">
+                        <i class="bi bi-circle me-2"></i>To block unauthorized network traffic
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q1" id="q1a2" value="2">
+                    <label class="form-check-label" for="q1a2">
+                        <i class="bi bi-circle me-2"></i>To scan for viruses
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q1" id="q1a3" value="3">
+                    <label class="form-check-label" for="q1a3">
+                        <i class="bi bi-circle me-2"></i>To encrypt email messages
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q1" id="q1a4" value="4">
+                    <label class="form-check-label" for="q1a4">
+                        <i class="bi bi-circle me-2"></i>To create VPN tunnels
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="card quiz-card" data-question="2">
+            <div class="card-header">
+                <span class="question-number">2</span>
+                What does a VPN do?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q2" id="q2a1" value="1">
+                    <label class="form-check-label" for="q2a1">
+                        <i class="bi bi-circle me-2"></i>Prevents all malware infections
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q2" id="q2a2" value="2">
+                    <label class="form-check-label" for="q2a2">
+                        <i class="bi bi-circle me-2"></i>Acts as a firewall
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q2" id="q2a3" value="3">
+                    <label class="form-check-label" for="q2a3">
+                        <i class="bi bi-circle me-2"></i>Encrypts traffic & hides IP address
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q2" id="q2a4" value="4">
+                    <label class="form-check-label" for="q2a4">
+                        <i class="bi bi-circle me-2"></i>Monitors network speed
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="card quiz-card" data-question="3">
+            <div class="card-header">
+                <span class="question-number">3</span>
+                Which protocol is used to send emails securely?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q3" id="q3a1" value="1">
+                    <label class="form-check-label" for="q3a1">
+                        <i class="bi bi-circle me-2"></i>HTTP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q3" id="q3a2" value="2">
+                    <label class="form-check-label" for="q3a2">
+                        <i class="bi bi-circle me-2"></i>FTP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q3" id="q3a3" value="3">
+                    <label class="form-check-label" for="q3a3">
+                        <i class="bi bi-circle me-2"></i>DNS
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q3" id="q3a4" value="4">
+                    <label class="form-check-label" for="q3a4">
+                        <i class="bi bi-circle me-2"></i>SMTP over TLS/SSL
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="card quiz-card" data-question="4">
+            <div class="card-header">
+                <span class="question-number">4</span>
+                What is a DMZ?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q4" id="q4a1" value="1">
+                    <label class="form-check-label" for="q4a1">
+                        <i class="bi bi-circle me-2"></i>A subnet for public-facing servers
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q4" id="q4a2" value="2">
+                    <label class="form-check-label" for="q4a2">
+                        <i class="bi bi-circle me-2"></i>A secure VPN endpoint
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q4" id="q4a3" value="3">
+                    <label class="form-check-label" for="q4a3">
+                        <i class="bi bi-circle me-2"></i>A firewall setting
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q4" id="q4a4" value="4">
+                    <label class="form-check-label" for="q4a4">
+                        <i class="bi bi-circle me-2"></i>A type of malware
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 5 -->
+        <div class="card quiz-card" data-question="5">
+            <div class="card-header">
+                <span class="question-number">5</span>
+                HTTPS uses which port?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q5" id="q5a1" value="1">
+                    <label class="form-check-label" for="q5a1">
+                        <i class="bi bi-circle me-2"></i>443
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q5" id="q5a2" value="2">
+                    <label class="form-check-label" for="q5a2">
+                        <i class="bi bi-circle me-2"></i>80
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q5" id="q5a3" value="3">
+                    <label class="form-check-label" for="q5a3">
+                        <i class="bi bi-circle me-2"></i>22
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q5" id="q5a4" value="4">
+                    <label class="form-check-label" for="q5a4">
+                        <i class="bi bi-circle me-2"></i>25
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 6 -->
+        <div class="card quiz-card" data-question="6">
+            <div class="card-header">
+                <span class="question-number">6</span>
+                What does NAT stand for?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q6" id="q6a1" value="1">
+                    <label class="form-check-label" for="q6a1">
+                        <i class="bi bi-circle me-2"></i>Network Authentication Token
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q6" id="q6a2" value="2">
+                    <label class="form-check-label" for="q6a2">
+                        <i class="bi bi-circle me-2"></i>Network Address Translation
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q6" id="q6a3" value="3">
+                    <label class="form-check-label" for="q6a3">
+                        <i class="bi bi-circle me-2"></i>Network Access Terminal
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q6" id="q6a4" value="4">
+                    <label class="form-check-label" for="q6a4">
+                        <i class="bi bi-circle me-2"></i>Network Allocation Table
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 7 -->
+        <div class="card quiz-card" data-question="7">
+            <div class="card-header">
+                <span class="question-number">7</span>
+                What does a router do?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q7" id="q7a1" value="1">
+                    <label class="form-check-label" for="q7a1">
+                        <i class="bi bi-circle me-2"></i>Directs traffic between networks
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q7" id="q7a2" value="2">
+                    <label class="form-check-label" for="q7a2">
+                        <i class="bi bi-circle me-2"></i>Scans for viruses
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q7" id="q7a3" value="3">
+                    <label class="form-check-label" for="q7a3">
+                        <i class="bi bi-circle me-2"></i>Encrypts data
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q7" id="q7a4" value="4">
+                    <label class="form-check-label" for="q7a4">
+                        <i class="bi bi-circle me-2"></i>Creates VPN connections
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 8 -->
+        <div class="card quiz-card" data-question="8">
+            <div class="card-header">
+                <span class="question-number">8</span>
+                Which protocol securely transfers files?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q8" id="q8a1" value="1">
+                    <label class="form-check-label" for="q8a1">
+                        <i class="bi bi-circle me-2"></i>SFTP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q8" id="q8a2" value="2">
+                    <label class="form-check-label" for="q8a2">
+                        <i class="bi bi-circle me-2"></i>HTTP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q8" id="q8a3" value="3">
+                    <label class="form-check-label" for="q8a3">
+                        <i class="bi bi-circle me-2"></i>SMTP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q8" id="q8a4" value="4">
+                    <label class="form-check-label" for="q8a4">
+                        <i class="bi bi-circle me-2"></i>FTP (unencrypted)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 9 -->
+        <div class="card quiz-card" data-question="9">
+            <div class="card-header">
+                <span class="question-number">9</span>
+                Which is a secure wireless encryption protocol?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q9" id="q9a1" value="1">
+                    <label class="form-check-label" for="q9a1">
+                        <i class="bi bi-circle me-2"></i>WPA3
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q9" id="q9a2" value="2">
+                    <label class="form-check-label" for="q9a2">
+                        <i class="bi bi-circle me-2"></i>WEP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q9" id="q9a3" value="3">
+                    <label class="form-check-label" for="q9a3">
+                        <i class="bi bi-circle me-2"></i>HTTP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q9" id="q9a4" value="4">
+                    <label class="form-check-label" for="q9a4">
+                        <i class="bi bi-circle me-2"></i>FTP
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question 10 -->
+        <div class="card quiz-card" data-question="10">
+            <div class="card-header">
+                <span class="question-number">10</span>
+                Which protocol resolves domain names to IP addresses?
+                <i class="bi bi-check-circle-fill answered-indicator"></i>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q10" id="q10a1" value="1">
+                    <label class="form-check-label" for="q10a1">
+                        <i class="bi bi-circle me-2"></i>DNS
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q10" id="q10a2" value="2">
+                    <label class="form-check-label" for="q10a2">
+                        <i class="bi bi-circle me-2"></i>HTTP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q10" id="q10a3" value="3">
+                    <label class="form-check-label" for="q10a3">
+                        <i class="bi bi-circle me-2"></i>SMTP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q10" id="q10a4" value="4">
+                    <label class="form-check-label" for="q10a4">
+                        <i class="bi bi-circle me-2"></i>VPN
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="text-center mt-4 mb-5">
+            <button type="button" class="btn btn-secondary btn-back me-3" onclick="window.location.href='quiz.html'">
+                <i class="bi bi-arrow-left me-2"></i>Back to Quizzes
+            </button>
+            <button type="button" class="btn btn-primary btn-submit" onclick="submitQuiz()">
+                <i class="bi bi-send me-2"></i>Submit Quiz
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<!-- Result Modal -->
+<div class="modal fade" id="resultModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%); color: white;">
+                <h5 class="modal-title"><i class="bi bi-trophy me-2"></i>Quiz Results</h5>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div id="resultIcon" style="font-size: 4rem;"></div>
+                <h2 id="resultScore" class="my-3"></h2>
+                <p id="resultMessage" class="text-muted"></p>
+                <div class="progress mt-3" style="height: 25px;">
+                    <div id="resultProgress" class="progress-bar" role="progressbar"></div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='quiz.html'">
+                    <i class="bi bi-grid me-1"></i>All Quizzes
+                </button>
+                <button type="button" class="btn btn-success" onclick="location.reload()">
+                    <i class="bi bi-arrow-repeat me-1"></i>Retry
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const totalQuestions = 10;
+    const correctAnswerIndices = [1, 3, 4, 1, 1, 2, 1, 1, 1, 1];
+    const quizId = 2;
+    let timerInterval;
+    let timeLeft = 600; // 10 minutes
 
-    // Mixed correct answers:
-    // Q1=1, Q2=3, Q3=4, Q4=1, Q5=1, Q6=2, Q7=1, Q8=1, Q9=1, Q10=1
-    const correctAnswerIndices = [1,3,4,1,1,2,1,1,1,1];
+    $(document).ready(function() {
+        checkAuth();
+        startTimer();
+
+        // Track answered questions
+        $('input[type="radio"]').change(function() {
+            const questionNum = $(this).attr('name').replace('q', '');
+            $(`.quiz-card[data-question="${questionNum}"]`).addClass('answered');
+            updateProgress();
+        });
+    });
+
+    function checkAuth() {
+        $.ajax({
+            url: "/api/auth/me",
+            type: "GET",
+            xhrFields: { withCredentials: true },
+            success: function(user) {
+                $("#welcomeMsg").text("Hi, " + user.username);
+                localStorage.setItem('studentId', user.id);
+            },
+            error: function() {
+                alert("Please log in first.");
+                window.location.href = "login.html";
+            }
+        });
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(function() {
+            timeLeft--;
+
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            $("#timer").text(timeString);
+            $("#timeRemaining").text(timeString);
+
+            if (timeLeft === 120) {
+                $(".timer-badge").removeClass("bg-light text-dark").addClass("bg-warning text-dark");
+            }
+
+            if (timeLeft === 60) {
+                $(".timer-badge").removeClass("bg-warning").addClass("bg-danger text-white");
+            }
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                alert("Time's up! Submitting your quiz...");
+                submitQuiz();
+            }
+        }, 1000);
+    }
+
+    function updateProgress() {
+        const answered = $('.quiz-card.answered').length;
+        const percentage = (answered / totalQuestions) * 100;
+
+        $('#answeredCount').text(answered);
+        $('#progressBar').css('width', percentage + '%');
+    }
 
     function submitQuiz() {
+        clearInterval(timerInterval);
+
+        const studentId = localStorage.getItem('studentId');
+        if (!studentId) {
+            alert("Please log in first!");
+            window.location.href = 'login.html';
+            return;
+        }
+
         let correctAnswers = 0;
+        let answeredCount = 0;
 
         for (let i = 1; i <= totalQuestions; i++) {
             const selected = document.querySelector(`input[name="q${i}"]:checked`);
-            if (selected && parseInt(selected.value) === correctAnswerIndices[i-1]) {
-                correctAnswers++;
+            if (selected) {
+                answeredCount++;
+                if (parseInt(selected.value) === correctAnswerIndices[i-1]) {
+                    correctAnswers++;
+                }
             }
         }
 
-        if (correctAnswers < totalQuestions) {
-            alert("You must answer all questions correctly before submitting!");
+        if (answeredCount < totalQuestions) {
+            alert(`Please answer all questions. You've answered ${answeredCount} of ${totalQuestions}.`);
             return;
         }
 
         const progress = {
-            student: { id: 1 },
-            quiz: { id: 2 },
+            student: { id: parseInt(studentId) },
+            quiz: { id: quizId },
             totalQuestions,
             correctAnswers,
             completed: true
@@ -31,107 +719,62 @@
         fetch('/api/quiz-progress/complete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(progress)
         })
-            .then(res => res.json())
-            .then(() => {
-                alert(`Quiz submitted! Score: ${correctAnswers}/${totalQuestions}`);
-                window.location.href = 'quiz.html';
+            .then(response => response.json())
+            .then(data => {
+                showResults(correctAnswers);
             })
-            .catch(err => {
-                alert("Error submitting quiz.");
-                console.error(err);
+            .catch(error => {
+                console.error(error);
+                showResults(correctAnswers);
             });
     }
+
+    function showResults(score) {
+        const percentage = (score / totalQuestions) * 100;
+
+        let icon, message, progressClass;
+
+        if (percentage >= 80) {
+            icon = '<i class="bi bi-emoji-laughing text-success"></i>';
+            message = "Excellent! You're a network security pro!";
+            progressClass = 'bg-success';
+        } else if (percentage >= 60) {
+            icon = '<i class="bi bi-emoji-smile text-primary"></i>';
+            message = "Good job! Keep learning about network security!";
+            progressClass = 'bg-primary';
+        } else if (percentage >= 40) {
+            icon = '<i class="bi bi-emoji-neutral text-warning"></i>';
+            message = "Not bad! Review network concepts.";
+            progressClass = 'bg-warning';
+        } else {
+            icon = '<i class="bi bi-emoji-frown text-danger"></i>';
+            message = "Keep studying network security!";
+            progressClass = 'bg-danger';
+        }
+
+        $('#resultIcon').html(icon);
+        $('#resultScore').text(`${score} / ${totalQuestions}`);
+        $('#resultMessage').text(message);
+        $('#resultProgress').css('width', percentage + '%').addClass(progressClass).text(percentage + '%');
+
+        new bootstrap.Modal(document.getElementById('resultModal')).show();
+    }
+
+    // Logout handler
+    $("#logoutBtn").click(function() {
+        $.ajax({
+            url: "/api/auth/logout",
+            type: "POST",
+            xhrFields: { withCredentials: true },
+            success: function() {
+                localStorage.removeItem('studentId');
+                window.location.href = "login.html";
+            }
+        });
+    });
 </script>
-
-
-
-<form id="quizForm">
-
-    <div class="mb-3">
-        <h6>1. What is the primary purpose of a firewall?</h6>
-        <div><input type="radio" name="q1" value="1"> To block unauthorized network traffic</div> <!-- Correct -->
-        <div><input type="radio" name="q1" value="2"> To scan for viruses</div>
-        <div><input type="radio" name="q1" value="3"> To encrypt email messages</div>
-        <div><input type="radio" name="q1" value="4"> To create VPN tunnels</div>
-    </div>
-
-    <div class="mb-3">
-        <h6>2. What does a VPN do?</h6>
-        <div><input type="radio" name="q2" value="1"> Prevents all malware infections</div>
-        <div><input type="radio" name="q2" value="2"> Acts as a firewall</div>
-        <div><input type="radio" name="q2" value="3"> Encrypts traffic & hides IP address</div> <!-- Correct -->
-        <div><input type="radio" name="q2" value="4"> Monitors network speed</div>
-    </div>
-
-    <div class="mb-3">
-        <h6>3. Which protocol is used to send emails securely?</h6>
-        <div><input type="radio" name="q3" value="1"> HTTP</div>
-        <div><input type="radio" name="q3" value="2"> FTP</div>
-        <div><input type="radio" name="q3" value="3"> DNS</div>
-        <div><input type="radio" name="q3" value="4"> SMTP over TLS/SSL</div> <!-- Correct -->
-    </div>
-
-    <div class="mb-3">
-        <h6>4. What is a DMZ?</h6>
-        <div><input type="radio" name="q4" value="1"> A subnet for public-facing servers</div> <!-- Correct -->
-        <div><input type="radio" name="q4" value="2"> A secure VPN endpoint</div>
-        <div><input type="radio" name="q4" value="3"> A firewall setting</div>
-        <div><input type="radio" name="q4" value="4"> A type of malware</div>
-    </div>
-
-    <div class="mb-3">
-        <h6>5. HTTPS uses which port?</h6>
-        <div><input type="radio" name="q5" value="1"> 443</div> <!-- Correct -->
-        <div><input type="radio" name="q5" value="2"> 80</div>
-        <div><input type="radio" name="q5" value="3"> 22</div>
-        <div><input type="radio" name="q5" value="4"> 25</div>
-    </div>
-
-    <div class="mb-3">
-        <h6>6. What does NAT stand for?</h6>
-        <div><input type="radio" name="q6" value="1"> Network Authentication Token</div>
-        <div><input type="radio" name="q6" value="2"> Network Address Translation</div> <!-- Correct -->
-        <div><input type="radio" name="q6" value="3"> Network Access Terminal</div>
-        <div><input type="radio" name="q6" value="4"> Network Allocation Table</div>
-    </div>
-
-    <div class="mb-3">
-        <h6>7. What does a router do?</h6>
-        <div><input type="radio" name="q7" value="1"> Directs traffic between networks</div> <!-- Correct -->
-        <div><input type="radio" name="q7" value="2"> Scans for viruses</div>
-        <div><input type="radio" name="q7" value="3"> Encrypts data</div>
-        <div><input type="radio" name="q7" value="4"> Creates VPN connections</div>
-    </div>
-
-    <div class="mb-3">
-        <h6>8. Which protocol securely transfers files?</h6>
-        <div><input type="radio" name="q8" value="1"> SFTP</div> <!-- Correct -->
-        <div><input type="radio" name="q8" value="2"> HTTP</div>
-        <div><input type="radio" name="q8" value="3"> SMTP</div>
-        <div><input type="radio" name="q8" value="4"> FTP (unencrypted)</div>
-    </div>
-
-    <div class="mb-3">
-        <h6>9. Which is a secure wireless encryption protocol?</h6>
-        <div><input type="radio" name="q9" value="1"> WPA3</div> <!-- Correct -->
-        <div><input type="radio" name="q9" value="2"> WEP</div>
-        <div><input type="radio" name="q9" value="3"> HTTP</div>
-        <div><input type="radio" name="q9" value="4"> FTP</div>
-    </div>
-
-    <div class="mb-3">
-        <h6>10. Which protocol resolves domain names?</h6>
-        <div><input type="radio" name="q10" value="1"> DNS</div> <!-- Correct -->
-        <div><input type="radio" name="q10" value="2"> HTTP</div>
-        <div><input type="radio" name="q10" value="3"> SMTP</div>
-        <div><input type="radio" name="q10" value="4"> VPN</div>
-    </div>
-
-    <button type="button" class="btn btn-primary" onclick="submitQuiz()">Submit</button>
-</form>
-
-<div class="mt-3">
-    <button class="btn btn-secondary" onclick="window.location.href='quiz.html'">Return to Quiz Selection</button>
-</div>
+</body>
+</html>

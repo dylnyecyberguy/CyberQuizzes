@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Achievements - CyberQuizzes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .stats-overview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-item h2 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .stat-item p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .achievement-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .achievement-card.locked {
+            background: #2d2d2d;
+            color: #666;
+        }
+
+        .achievement-card.locked .badge-icon {
+            filter: grayscale(100%);
+            opacity: 0.3;
+        }
+
+        .achievement-card.locked .achievement-title {
+            color: #666;
+        }
+
+        .achievement-card.locked .achievement-desc {
+            color: #555;
+        }
+
+        .achievement-card.unlocked {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .achievement-card.unlocked:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .badge-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 3rem;
+            color: white;
+            position: relative;
+        }
+
+        .badge-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+        }
+
+        .achievement-card.unlocked .badge-icon::after {
+            border-color: gold;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.5; }
+        }
+
+        /* Quiz-specific colors */
+        .quiz1 .badge-icon { background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%); }
+        .quiz2 .badge-icon { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .quiz3 .badge-icon { background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); }
+        .quiz4 .badge-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .quiz5 .badge-icon { background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%); }
+
+        .achievement-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .achievement-desc {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .score-badge.excellent {
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .score-badge.good {
+            background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);
+            color: white;
+        }
+
+        .score-badge.average {
+            background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+            color: #333;
+        }
+
+        .score-badge.needs-work {
+            background: linear-gradient(90deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+        }
+
+        .locked-badge {
+            background: #444;
+            color: #888;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .completion-date {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .lock-overlay {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #666;
+        }
+
+        .unlocked-check {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #28a745;
+        }
+
+        .master-achievement {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ffd700 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .master-achievement.locked {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            color: #666;
+        }
+
+        .master-achievement .master-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .master-achievement.locked .master-icon {
+            filter: grayscale(100%);
+            opacity: 0.3;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .progress-ring {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 10;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.2);
+        }
+
+        .progress-ring .progress {
+            stroke: #ffd700;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .progress-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .btn-retake {
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .nav-buttons .btn {
+            border-radius: 25px;
+            padding: 10px 25px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1"><i class="bi bi-trophy-fill me-2"></i>Achievements</h2>
+                <p class="mb-0 opacity-75">Track your cybersecurity learning progress</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span id="welcomeMsg"></span>
+                <button id="logoutBtn" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center py-5">
+        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-light mt-3">Loading your achievements...</p>
+    </div>
+
+    <!-- Main Content (hidden until loaded) -->
+    <div id="mainContent" class="d-none">
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="row text-center">
+                <div class="col-md-3 col-6 stat-item mb-3 mb-md-0">
+                    <h2 id="completedCount">0</h2>
+                    <p><i class="bi bi-check-circle me-1"></i>Quizzes Completed</p>
+                </div>
+                <div class="col-md-3 col-6 stat-item mb-3 mb-md-0">
+                    <h2 id="totalScore">0%</h2>
+                    <p><i class="bi bi-graph-up me-1"></i>Average Score</p>
+                </div>
+                <div class="col-md-3 col-6 stat-item">
+                    <h2 id="achievementCount">0/5</h2>
+                    <p><i class="bi bi-award me-1"></i>Achievements</p>
+                </div>
+                <div class="col-md-3 col-6 stat-item">
+                    <h2 id="totalQuestions">0</h2>
+                    <p><i class="bi bi-question-circle me-1"></i>Questions Answered</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Cards -->
+        <div class="row g-4" id="achievementGrid">
+
+            <!-- Quiz 1 Achievement -->
+            <div class="col-md-6 col-lg-4">
+                <div class="achievement-card locked quiz1" id="achievement1">
+                    <i class="bi bi-lock-fill lock-overlay" id="lock1"></i>
+                    <i class="bi bi-check-circle-fill unlocked-check d-none" id="check1"></i>
+                    <div class="badge-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <h5 class="achievement-title">Security Novice</h5>
+                    <p class="achievement-desc">Complete Quiz 1: Cybersecurity Basics</p>
+                    <div id="score1">
+                        <span class="locked-badge"><i class="bi bi-lock me-1"></i>Locked</span>
+                    </div>
+                    <a href="quiz1.html" class="btn btn-outline-primary btn-retake d-none" id="retake1">
+                        <i class="bi bi-arrow-repeat me-1"></i>Retake Quiz
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quiz 2 Achievement -->
+            <div class="col-md-6 col-lg-4">
+                <div class="achievement-card locked quiz2" id="achievement2">
+                    <i class="bi bi-lock-fill lock-overlay" id="lock2"></i>
+                    <i class="bi bi-check-circle-fill unlocked-check d-none" id="check2"></i>
+                    <div class="badge-icon">
+                        <i class="bi bi-hdd-network-fill"></i>
+                    </div>
+                    <h5 class="achievement-title">Network Guardian</h5>
+                    <p class="achievement-desc">Complete Quiz 2: Network Security</p>
+                    <div id="score2">
+                        <span class="locked-badge"><i class="bi bi-lock me-1"></i>Locked</span>
+                    </div>
+                    <a href="quiz2.html" class="btn btn-outline-success btn-retake d-none" id="retake2">
+                        <i class="bi bi-arrow-repeat me-1"></i>Retake Quiz
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quiz 3 Achievement -->
+            <div class="col-md-6 col-lg-4">
+                <div class="achievement-card locked quiz3" id="achievement3">
+                    <i class="bi bi-lock-fill lock-overlay" id="lock3"></i>
+                    <i class="bi bi-check-circle-fill unlocked-check d-none" id="check3"></i>
+                    <div class="badge-icon">
+                        <i class="bi bi-bug-fill"></i>
+                    </div>
+                    <h5 class="achievement-title">Threat Hunter</h5>
+                    <p class="achievement-desc">Complete Quiz 3: Cyber Threats & Malware</p>
+                    <div id="score3">
+                        <span class="locked-badge"><i class="bi bi-lock me-1"></i>Locked</span>
+                    </div>
+                    <a href="quiz3.html" class="btn btn-outline-danger btn-retake d-none" id="retake3">
+                        <i class="bi bi-arrow-repeat me-1"></i>Retake Quiz
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quiz 4 Achievement -->
+            <div class="col-md-6 col-lg-4">
+                <div class="achievement-card locked quiz4" id="achievement4">
+                    <i class="bi bi-lock-fill lock-overlay" id="lock4"></i>
+                    <i class="bi bi-check-circle-fill unlocked-check d-none" id="check4"></i>
+                    <div class="badge-icon">
+                        <i class="bi bi-cloud-lock-fill"></i>
+                    </div>
+                    <h5 class="achievement-title">Cloud Defender</h5>
+                    <p class="achievement-desc">Complete Quiz 4: Cloud & Data Security</p>
+                    <div id="score4">
+                        <span class="locked-badge"><i class="bi bi-lock me-1"></i>Locked</span>
+                    </div>
+                    <a href="quiz4.html" class="btn btn-outline-purple btn-retake d-none" id="retake4" style="border-color: #667eea; color: #667eea;">
+                        <i class="bi bi-arrow-repeat me-1"></i>Retake Quiz
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quiz 5 Achievement -->
+            <div class="col-md-6 col-lg-4">
+                <div class="achievement-card locked quiz5" id="achievement5">
+                    <i class="bi bi-lock-fill lock-overlay" id="lock5"></i>
+                    <i class="bi bi-check-circle-fill unlocked-check d-none" id="check5"></i>
+                    <div class="badge-icon">
+                        <i class="bi bi-file-earmark-ruled-fill"></i>
+                    </div>
+                    <h5 class="achievement-title">Compliance Expert</h5>
+                    <p class="achievement-desc">Complete Quiz 5: IT Policies & Compliance</p>
+                    <div id="score5">
+                        <span class="locked-badge"><i class="bi bi-lock me-1"></i>Locked</span>
+                    </div>
+                    <a href="quiz5.html" class="btn btn-outline-info btn-retake d-none" id="retake5">
+                        <i class="bi bi-arrow-repeat me-1"></i>Retake Quiz
+                    </a>
+                </div>
+            </div>
+
+            <!-- Placeholder for symmetry -->
+            <div class="col-md-6 col-lg-4 d-none d-lg-block">
+                <div class="achievement-card" style="background: transparent; box-shadow: none;">
+                    <!-- Empty for grid alignment -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Master Achievement -->
+        <div class="master-achievement locked" id="masterAchievement">
+            <div class="sparkle" style="top: 20%; left: 10%;"></div>
+            <div class="sparkle" style="top: 30%; right: 15%; animation-delay: 0.5s;"></div>
+            <div class="sparkle" style="bottom: 25%; left: 20%; animation-delay: 1s;"></div>
+            <div class="sparkle" style="bottom: 20%; right: 10%; animation-delay: 1.5s;"></div>
+
+            <div class="master-icon">🏆</div>
+            <h3 class="mb-2">Cybersecurity Master</h3>
+            <p class="mb-4 opacity-75">Complete all 5 quizzes to unlock this ultimate achievement!</p>
+
+            <div class="progress-ring">
+                <svg viewBox="0 0 100 100">
+                    <circle class="bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="progress" cx="50" cy="50" r="45"
+                            stroke-dasharray="283"
+                            stroke-dashoffset="283"
+                            id="progressCircle"></circle>
+                </svg>
+                <div class="position-absolute top-50 start-50 translate-middle">
+                    <span class="progress-text" id="progressPercent">0%</span>
+                </div>
+            </div>
+
+            <p id="masterStatus"><i class="bi bi-lock me-1"></i>0 of 5 quizzes completed</p>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="text-center mt-4 nav-buttons">
+            <a href="quiz.html" class="btn btn-outline-light me-2">
+                <i class="bi bi-controller me-1"></i>Take Quizzes
+            </a>
+            <a href="index.html" class="btn btn-outline-light">
+                <i class="bi bi-house me-1"></i>Home
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<!-- Confetti Canvas -->
+<canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let studentId = null;
+    let quizProgress = [];
+
+    $(document).ready(function() {
+        checkAuth();
+    });
+
+    function checkAuth() {
+        $.ajax({
+            url: "/api/auth/me",
+            type: "GET",
+            xhrFields: { withCredentials: true },
+            success: function(user) {
+                studentId = user.id;
+                $("#welcomeMsg").text("Hi, " + user.username + "!");
+                localStorage.setItem('studentId', user.id);
+                loadAchievements();
+            },
+            error: function() {
+                alert("Please log in first.");
+                window.location.href = "login.html";
+            }
+        });
+    }
+
+    function loadAchievements() {
+        $.ajax({
+            url: `/api/quiz-progress/student/${studentId}`,
+            type: "GET",
+            xhrFields: { withCredentials: true },
+            success: function(progressList) {
+                quizProgress = progressList;
+                renderAchievements();
+            },
+            error: function(err) {
+                console.error("Error loading progress:", err);
+                renderAchievements();
+            }
+        });
+    }
+
+    function renderAchievements() {
+        // Hide loading, show content
+        $("#loadingSpinner").addClass("d-none");
+        $("#mainContent").removeClass("d-none");
+
+        let completedCount = 0;
+        let totalCorrect = 0;
+        let totalQuestions = 0;
+
+        // Process each quiz (1-5)
+        for (let quizId = 1; quizId <= 5; quizId++) {
+            const progress = quizProgress.find(p => p.quiz && p.quiz.id === quizId);
+
+            if (progress && progress.completed) {
+                completedCount++;
+                totalCorrect += progress.correctAnswers || 0;
+                totalQuestions += progress.totalQuestions || 10;
+
+                unlockAchievement(quizId, progress);
+            }
+        }
+
+
+        $("#completedCount").text(completedCount);
+        $("#achievementCount").text(`${completedCount}/5`);
+        $("#totalQuestions").text(totalQuestions);
+
+        const avgScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+        $("#totalScore").text(`${avgScore}%`);
+
+        // Update master achievement
+        updateMasterAchievement(completedCount);
+
+        // Trigger confetti if all completed
+        if (completedCount === 5) {
+            setTimeout(() => launchConfetti(), 500);
+        }
+    }
+
+    function unlockAchievement(quizId, progress) {
+        const card = $(`#achievement${quizId}`);
+        const lock = $(`#lock${quizId}`);
+        const check = $(`#check${quizId}`);
+        const scoreDiv = $(`#score${quizId}`);
+        const retakeBtn = $(`#retake${quizId}`);
+
+        // Update card state
+        card.removeClass("locked").addClass("unlocked");
+        lock.addClass("d-none");
+        check.removeClass("d-none");
+        retakeBtn.removeClass("d-none");
+
+        // Calculate percentage
+        const percentage = Math.round((progress.correctAnswers / progress.totalQuestions) * 100);
+
+        // Determine score badge class
+        let badgeClass = "needs-work";
+        let badgeText = "Needs Work";
+
+        if (percentage >= 90) {
+            badgeClass = "excellent";
+            badgeText = "Excellent!";
+        } else if (percentage >= 70) {
+            badgeClass = "good";
+            badgeText = "Good Job!";
+        } else if (percentage >= 50) {
+            badgeClass = "average";
+            badgeText = "Average";
+        }
+
+
+        scoreDiv.html(`
+            <span class="score-badge ${badgeClass}">
+                <i class="bi bi-star-fill me-1"></i>${progress.correctAnswers}/${progress.totalQuestions} (${percentage}%)
+            </span>
+            <p class="completion-date">
+                <i class="bi bi-calendar-check me-1"></i>${badgeText}
+            </p>
+        `);
+    }
+
+    function updateMasterAchievement(completedCount) {
+        const percentage = (completedCount / 5) * 100;
+        const circumference = 2 * Math.PI * 45; // r=45
+        const offset = circumference - (percentage / 100) * circumference;
+
+
+        $("#progressCircle").css("stroke-dashoffset", offset);
+        $("#progressPercent").text(`${Math.round(percentage)}%`);
+
+
+        if (completedCount === 5) {
+            $("#masterAchievement").removeClass("locked");
+            $("#masterStatus").html(`
+                <i class="bi bi-check-circle-fill me-1"></i>
+                <strong>Achievement Unlocked!</strong> You are a Cybersecurity Master!
+            `);
+        } else {
+            $("#masterStatus").html(`
+                <i class="bi bi-lock me-1"></i>
+                ${completedCount} of 5 quizzes completed
+            `);
+        }
+    }
+
+    function launchConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const colors = ['#f093fb', '#f5576c', '#ffd700', '#00b4db', '#38ef7d', '#667eea'];
+
+        for (let i = 0; i < 200; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                size: Math.random() * 10 + 5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speedY: Math.random() * 3 + 2,
+                speedX: Math.random() * 4 - 2,
+                rotation: Math.random() * 360,
+                rotationSpeed: Math.random() * 10 - 5
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p, index) => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                p.rotation += p.rotationSpeed;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+
+                if (p.y > canvas.height) {
+                    particles.splice(index, 1);
+                }
+            });
+
+            if (particles.length > 0) {
+                requestAnimationFrame(animate);
+            }
+        }
+
+        animate();
+    }
+
+    // Logout handler
+    $("#logoutBtn").click(function() {
+        $.ajax({
+            url: "/api/auth/logout",
+            type: "POST",
+            xhrFields: { withCredentials: true },
+            success: function() {
+                localStorage.removeItem('studentId');
+                window.location.href = "login.html";
+            }
+        });
+    });
+</script>
+</body>
+</html>
